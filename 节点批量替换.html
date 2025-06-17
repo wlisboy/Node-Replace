@@ -141,16 +141,17 @@
 
         .topButton {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
         }
 
         .topButton .btn {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
+            font-size: 22px;
             border-radius: 50%;
-            background-color: var(--primary-color);
+            background-color: var(--primary-color, #2196F3);
             color: white;
             border: none;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -158,10 +159,52 @@
         }
 
         .topButton .btn:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
+            background-color: var(--secondary-color, #1976D2);
         }
 
+        @media (max-width: 700px) {
+            .topButton {
+                bottom: 12px;
+                right: 12px;
+            }
+            .topButton .btn {
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
+        }
+
+        .d-flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .action-bar-row {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .action-item label {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        .action-item input[type="checkbox"] {
+            margin: 0;
+        }
+        #processBtn {
+            min-width: 160px;
+            height: 46px;
+            font-size: 17px;
+            border-radius: 8px;
+            margin-top: 0;
+        }
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -177,6 +220,24 @@
             }
             
             select, input[type="number"] {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .action-bar-row {
+                flex-direction: column;
+                gap: 12px;
+                width: 100%;
+            }
+            .d-flex-center {
+                align-items: stretch;
+            }
+            .action-item {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            #processBtn {
                 width: 100%;
             }
         }
@@ -215,6 +276,12 @@
                 <div class="action-item">
                     <label for="num">获取节点数：</label>
                     <input id="num" name="num" type="number" value="1000" min="1" max="10000">
+                </div>
+                <div class="action-item">
+                    <label for="filterIP" style="margin-bottom: 0;">
+                        <input type="checkbox" id="filterIP" style="margin-right: 8px;">
+                        自动筛选IP
+                    </label>
                 </div>
             </div>
         </div>
@@ -300,6 +367,37 @@
         processBtn.html('<i class="fa fa-spinner fa-spin"></i> 正在处理...').prop('disabled', true);
         
         try {
+            // 检查是否启用IP筛选
+            const filterIP = $("#filterIP").is(":checked");
+            if (filterIP) {
+                // 从原始节点中提取IP地址
+                const extractedIPs = new Set();
+                for (let node of sample_nodes) {
+                    if (node.startsWith(vmess_pre)) {
+                        try {
+                            let node_data = atob(node.slice(vmess_pre.length, node.length));
+                            const addMatch = node_data.match(/"add":\s*"([^"]+)"/);
+                            if (addMatch) {
+                                extractedIPs.add(addMatch[1]);
+                            }
+                        } catch (e) {
+                            // 忽略解析错误的节点
+                        }
+                    } else if (node.startsWith(vless_pre) || node.startsWith(trojan_pre)) {
+                        const hostMatch = node.match(/@([^:]+):/);
+                        if (hostMatch) {
+                            extractedIPs.add(hostMatch[1]);
+                        }
+                    }
+                }
+                
+                if (extractedIPs.size > 0) {
+                    $("#cdniplist").val(Array.from(extractedIPs).join('\n'));
+                } else {
+                    throw new Error("未能从原始节点中提取到有效的IP地址！");
+                }
+            }
+            
             giplist = $("#cdniplist").val().trim().split(/\s*[\r\n]+\s*/);
             
             if (giplist.length === 0 || (giplist.length === 1 && !giplist[0])) {
@@ -378,84 +476,6 @@
         }
     }
 
-    // 新布局样式
-    const style = document.createElement('style');
-    style.innerHTML = `
-    .d-flex-center {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-bottom: 20px;
-    }
-    .action-bar-row {
-        display: flex;
-        gap: 32px;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    .action-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    .action-item label {
-        margin-bottom: 0;
-        font-weight: 500;
-    }
-    #processBtn {
-        min-width: 160px;
-        height: 46px;
-        font-size: 17px;
-        border-radius: 8px;
-        margin-top: 0;
-    }
-    @media (max-width: 700px) {
-        .action-bar-row {
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-        }
-        .d-flex-center {
-            align-items: stretch;
-        }
-        #processBtn {
-            width: 100%;
-        }
-    }
-    .topButton {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        z-index: 9999;
-    }
-    .topButton .btn {
-        width: 44px;
-        height: 44px;
-        font-size: 22px;
-        border-radius: 50%;
-        background-color: var(--primary-color, #2196F3);
-        color: white;
-        border: none;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    }
-    .topButton .btn:hover {
-        background-color: var(--secondary-color, #1976D2);
-    }
-    @media (max-width: 700px) {
-        .topButton {
-            bottom: 12px;
-            right: 12px;
-        }
-        .topButton .btn {
-            width: 36px;
-            height: 36px;
-            font-size: 18px;
-        }
-    }
-    `;
-    document.head.appendChild(style);
-
     // 修复返回顶部按钮的跳转
     window.addEventListener('DOMContentLoaded', function() {
         const goToTopBtn = document.getElementById('goToTop');
@@ -473,6 +493,67 @@
         } else {
             goToTopBtn.style.display = 'none';
         }
+    });
+
+    // 自动提取IP并填入IP列表
+    function autoExtractIPs() {
+        const vmess_pre = "vmess://";
+        const vless_pre = "vless://";
+        const trojan_pre = "trojan://";
+        let sample_node_raw = $("#in").val().trim(); // 只去除首尾空白，不去除所有空白
+        let sample_nodes = [];
+        function isBase64(str) {
+            if (!str || str.length % 4 !== 0) return false;
+            return /^[A-Za-z0-9+/=]+$/.test(str);
+        }
+        if (isBase64(sample_node_raw)) {
+            try {
+                sample_node_raw = decodeURIComponent(escape(atob(sample_node_raw)));
+                sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
+            } catch (e) {
+                $("#cdniplist").val("");
+                return;
+            }
+        } else {
+            sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
+        }
+        const extractedIPs = new Set();
+        for (let node of sample_nodes) {
+            if (node.startsWith(vmess_pre)) {
+                try {
+                    let node_data = atob(node.slice(vmess_pre.length));
+                    const addMatch = node_data.match(/"add":\s*"([^"]+)"/);
+                    if (addMatch) {
+                        extractedIPs.add(addMatch[1]);
+                    }
+                } catch (e) {}
+            } else if (node.startsWith(vless_pre) || node.startsWith(trojan_pre)) {
+                const hostMatch = node.match(/@([^:]+):/);
+                if (hostMatch) {
+                    extractedIPs.add(hostMatch[1]);
+                }
+            }
+        }
+        if (extractedIPs.size > 0) {
+            $("#cdniplist").val(Array.from(extractedIPs).join('\n'));
+        } else {
+            $("#cdniplist").val("");
+        }
+    }
+
+    $(document).ready(function() {
+        $('#filterIP').on('change', function() {
+            if (this.checked) {
+                autoExtractIPs();
+            } else {
+                $('#cdniplist').val(''); // 取消勾选时清空IP列表
+            }
+        });
+        $('#in').on('input', function() {
+            if ($('#filterIP').is(':checked')) {
+                autoExtractIPs();
+            }
+        });
     });
     </script>
 </body>
