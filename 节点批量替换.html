@@ -3,211 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>节点批量替换</title>
+    <title>节点批量替换工具</title>
     <!-- jQuery -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #2196F3;
-            --secondary-color: #1976D2;
-            --background-color: #f5f5f5;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --background-color: #f8fafc;
             --card-background: #ffffff;
-            --text-color: #333333;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            --text-color: #1e293b;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--background-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--gradient);
             color: var(--text-color);
             line-height: 1.6;
+            min-height: 100vh;
             padding: 20px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             background-color: var(--card-background);
-            padding: 30px;
+            padding: 40px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
+            backdrop-filter: blur(10px);
         }
 
         h2 {
             color: var(--primary-color);
             text-align: center;
             margin-bottom: 30px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 2.5rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .form-group label {
-            font-weight: 500;
-            margin-bottom: 8px;
+            font-weight: 600;
+            margin-bottom: 10px;
             display: block;
+            color: var(--text-color);
+            font-size: 1.1rem;
         }
 
         textarea {
             resize: vertical;
-            min-height: 120px;
-            border: 1px solid #ddd;
+            min-height: 140px;
+            border: 2px solid #e2e8f0;
             border-radius: var(--border-radius);
-            padding: 12px;
+            padding: 16px;
             width: 100%;
-            font-family: monospace;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
             font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
         }
 
         textarea:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background-color: #ffffff;
         }
 
         .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+            background: var(--gradient);
+            border: none;
             color: white;
-            padding: 10px 24px;
+            padding: 14px 32px;
             font-size: 16px;
+            font-weight: 600;
             border-radius: var(--border-radius);
             transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
         }
 
         .btn-primary:active {
             transform: translateY(0);
         }
 
+        .btn-primary:disabled {
+            opacity: 0.7;
+            transform: none;
+        }
+
         #err {
-            margin: 15px 0;
-            padding: 12px;
+            margin: 20px 0;
+            padding: 16px;
             border-radius: var(--border-radius);
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
+            background-color: #fef2f2;
+            color: #dc2626;
+            border: 2px solid #fecaca;
+            font-weight: 500;
         }
 
         .control-group {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         .control-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         select, input[type="number"] {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
             border-radius: var(--border-radius);
             font-size: 14px;
-            min-width: 120px;
+            min-width: 140px;
+            transition: all 0.3s ease;
+            background-color: #f8fafc;
         }
 
         select:focus, input[type="number"]:focus {
             border-color: var(--primary-color);
             outline: none;
-            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background-color: #ffffff;
         }
 
         .info-box {
-            background-color: #e3f2fd;
-            border: 1px solid #bbdefb;
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #bfdbfe;
             border-radius: var(--border-radius);
-            padding: 15px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #1565c0;
+            padding: 20px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            color: #1e40af;
+            font-weight: 500;
+        }
+
+        .protocol-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .protocol-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .topButton {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 30px;
+            right: 30px;
             z-index: 9999;
         }
 
         .topButton .btn {
-            width: 44px;
-            height: 44px;
-            font-size: 22px;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
             border-radius: 50%;
-            background-color: var(--primary-color, #2196F3);
+            background: var(--gradient);
             color: white;
             border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
 
         .topButton .btn:hover {
-            background-color: var(--secondary-color, #1976D2);
-        }
-
-        @media (max-width: 700px) {
-            .topButton {
-                bottom: 12px;
-                right: 12px;
-            }
-            .topButton .btn {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-            }
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         .d-flex-center {
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
+
         .action-bar-row {
             display: flex;
-            gap: 32px;
+            gap: 30px;
             align-items: center;
             flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            border: 2px solid #e2e8f0;
         }
+
         .action-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
+
         .action-item label {
             margin-bottom: 0;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--text-color);
         }
+
         .action-item input[type="checkbox"] {
             margin: 0;
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary-color);
         }
+
         #processBtn {
-            min-width: 160px;
-            height: 46px;
-            font-size: 17px;
-            border-radius: 8px;
+            min-width: 180px;
+            height: 50px;
+            font-size: 18px;
+            border-radius: var(--border-radius);
             margin-top: 0;
         }
+
+        .form-check-input:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 25px;
+            }
+            
+            h2 {
+                font-size: 2rem;
             }
             
             .control-group {
@@ -222,89 +276,137 @@
             select, input[type="number"] {
                 width: 100%;
             }
-        }
 
-        @media (max-width: 700px) {
             .action-bar-row {
                 flex-direction: column;
-                gap: 12px;
+                gap: 15px;
                 width: 100%;
             }
+
             .d-flex-center {
                 align-items: stretch;
             }
+
             .action-item {
                 width: 100%;
                 justify-content: flex-start;
             }
+
             #processBtn {
                 width: 100%;
             }
+
+            .topButton {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .topButton .btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+        }
+
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border: none;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-bottom: 2px solid #e2e8f0;
+            padding: 20px;
+        }
+
+        .card-body {
+            padding: 25px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>节点批量替换</h2>
+        <h2><i class="fas fa-network-wired"></i> 节点批量替换工具</h2>
         
         <div class="info-box">
-            <i class="fa fa-info-circle"></i> 支持 vmess、vless 和 trojan 协议的节点分享链接
+            <i class="fas fa-info-circle"></i> 
+            <strong>支持的协议：</strong>
+            <div class="protocol-badges">
+                <span class="protocol-badge">vmess</span>
+                <span class="protocol-badge">vless</span>
+                <span class="protocol-badge">trojan</span>
+                <span class="protocol-badge">Shadowsocks</span>
+                <span class="protocol-badge">hysteria2</span>
+                <span class="protocol-badge">tuic</span>
+            </div>
         </div>
 
         <div id="err" style="display: none;"></div>
         
         <div class="form-group">
-            <label for="in">原始节点：</label>
-            <textarea id="in" placeholder="请粘贴需要处理的节点链接..." rows="6"></textarea>
+            <label for="in"><i class="fas fa-link"></i> 原始节点：</label>
+            <textarea id="in" placeholder="请粘贴需要处理的节点链接" rows="6"></textarea>
         </div>
 
         <div id="customview" class="form-group">
-            <label for="cdniplist">IP列表：</label>
-            <textarea id="cdniplist" placeholder="每行一个IP或域名，例如：1.1.1.1 或 www.baidu.com"></textarea>
+            <label for="cdniplist"><i class="fas fa-server"></i> IP列表：</label>
+            <textarea id="cdniplist" placeholder="每行一个IP或域名;支持ipv4、ipv6格式"></textarea>
         </div>
 
-        <!-- 新布局：获取方式和节点数一行，生成订阅按钮单独一行 -->
         <div class="form-group d-flex-center">
             <div class="action-bar-row">
                 <div class="action-item">
-                    <label for="getmethod">获取方式：</label>
+                    <label for="getmethod"><i class="fas fa-random"></i> 获取方式：</label>
                     <select id="getmethod">
                         <option value="queue">顺序</option>
                         <option value="random">随机</option>
                     </select>
                 </div>
                 <div class="action-item">
-                    <label for="num">获取节点数：</label>
+                    <label for="num"><i class="fas fa-hashtag"></i> 获取节点数：</label>
                     <input id="num" name="num" type="number" value="1000" min="1" max="10000">
                 </div>
                 <div class="action-item">
                     <label for="filterIP" style="margin-bottom: 0;">
                         <input type="checkbox" id="filterIP" style="margin-right: 8px;">
-                        自动筛选IP
+                        <i class="fas fa-filter"></i> 自动筛选IP
                     </label>
                 </div>
             </div>
         </div>
+        
         <div class="form-group d-flex-center">
             <button id="processBtn" class="btn btn-primary btn-lg" onclick="exec()" onmousedown="$('#err').hide(); $('#out').val('');">
-                <i class="fa fa-refresh"></i> 生成订阅
+                <i class="fas fa-magic"></i> 生成订阅
             </button>
         </div>
 
         <div class="form-group">
-            <label for="out">订阅链接：</label>
+            <label for="out"><i class="fas fa-download"></i> 订阅链接：</label>
             <textarea id="out" rows="15" readonly placeholder="处理后的订阅内容将显示在这里..."></textarea>
         </div>
     </div>
 
     <div class="topButton">
         <button id="goToTop" class="btn" style="display: none;" title="返回顶部">
-            <i class="fa fa-chevron-up"></i>
+            <i class="fas fa-chevron-up"></i>
         </button>
     </div>
 
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
     var ipv4 = {
@@ -332,39 +434,17 @@
         let ip_result = [];
         let giplist = [];
 
-        let sample_node_raw = $("#in").val().replace(/\s+/g, "").trim();
-        let sample_nodes = [];
-        let isInputBase64 = false;
-        // 判断是否为base64编码
-        function isBase64(str) {
-            if (!str || str.length % 4 !== 0) return false;
-            return /^[A-Za-z0-9+/=]+$/.test(str);
-        }
-        if (isBase64(sample_node_raw)) {
-            try {
-                sample_node_raw = decodeURIComponent(escape(atob(sample_node_raw)));
-                sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
-                isInputBase64 = true;
-            } catch (e) {
-                $("#err").html("原始节点base64解码失败！").show();
-                return;
-            }
-        } else {
-            sample_nodes = [sample_node_raw];
-        }
+        let sample_node_raw = $("#in").val().trim();
+        let sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
 
-        const vmess_pre = "vmess://";
-        const vless_pre = "vless://";
-        const trojan_pre = "trojan://";
-
-        const supportedPrefixes = ["vmess://", "vless://", "trojan://"];
+        const supportedPrefixes = ["vmess://", "vless://", "trojan://", "ss://", "hysteria2://", "tuic://"];
 
         if (!sample_nodes.some(node => supportedPrefixes.some(prefix => node.startsWith(prefix)))) {
-            $("#err").html("仅支持vmess、vless和trojan的节点分享链接！").show();
+            $("#err").html("请检查输入的节点链接格式，支持 vmess、vless、trojan、ss、hysteria2、tuic 协议！").show();
             return;
         }
 
-        processBtn.html('<i class="fa fa-spinner fa-spin"></i> 正在处理...').prop('disabled', true);
+        processBtn.html('<i class="fas fa-spinner fa-spin loading-spinner"></i> 正在处理...').prop('disabled', true);
         
         try {
             // 检查是否启用IP筛选
@@ -373,20 +453,52 @@
                 // 从原始节点中提取IP地址
                 const extractedIPs = new Set();
                 for (let node of sample_nodes) {
-                    if (node.startsWith(vmess_pre)) {
+                    if (node.startsWith("vmess://")) {
                         try {
-                            let node_data = atob(node.slice(vmess_pre.length, node.length));
-                            const addMatch = node_data.match(/"add":\s*"([^"]+)"/);
+                            let node_data = atob(node.slice(8));
+                            const addMatch = node_data.match(/"add":\s*"([^\"]+)"/);
                             if (addMatch) {
                                 extractedIPs.add(addMatch[1]);
                             }
                         } catch (e) {
                             // 忽略解析错误的节点
                         }
-                    } else if (node.startsWith(vless_pre) || node.startsWith(trojan_pre)) {
-                        const hostMatch = node.match(/@([^:]+):/);
+                    } else if (node.startsWith("vless://") || node.startsWith("trojan://")) {
+                        // 支持IPv4和IPv6（带中括号）
+                        const hostMatch = node.match(/@\[([^\]]+)\]:/); // IPv6
                         if (hostMatch) {
-                            extractedIPs.add(hostMatch[1]);
+                            extractedIPs.add("[" + hostMatch[1] + "]");
+                        } else {
+                            const hostMatch4 = node.match(/@([^:\[]+):/); // IPv4/域名
+                            if (hostMatch4) {
+                                extractedIPs.add(hostMatch4[1]);
+                            }
+                        }
+                    } else if (node.startsWith("ss://")) {
+                        // SS协议解析
+                        try {
+                            const decoded = decodeURIComponent(node.slice(5));
+                            const atIndex = decoded.indexOf('@');
+                            if (atIndex !== -1) {
+                                const colonIndex = decoded.indexOf(':', atIndex);
+                                if (colonIndex !== -1) {
+                                    const host = decoded.substring(atIndex + 1, colonIndex);
+                                    extractedIPs.add(host);
+                                }
+                            }
+                        } catch (e) {
+                            // 忽略解析错误的节点
+                        }
+                    } else if (node.startsWith("hysteria2://") || node.startsWith("tuic://")) {
+                        // hysteria2和tuic协议解析
+                        const hostMatch = node.match(/@\[([^\]]+)\]:/); // IPv6
+                        if (hostMatch) {
+                            extractedIPs.add("[" + hostMatch[1] + "]");
+                        } else {
+                            const hostMatch4 = node.match(/@([^:\[]+):/); // IPv4/域名
+                            if (hostMatch4) {
+                                extractedIPs.add(hostMatch4[1]);
+                            }
                         }
                     }
                 }
@@ -428,51 +540,103 @@
 
             for (let sample_node of sample_nodes) {
                 if (!supportedPrefixes.some(prefix => sample_node.startsWith(prefix))) continue;
-                if (sample_node.startsWith(vmess_pre)) {
+                
+                if (sample_node.startsWith("vmess://")) {
                     try {
-                        let node_data = atob(sample_node.slice(vmess_pre.length, sample_node.length));
+                        let node_data = atob(sample_node.slice(8));
                         if (node_data.includes('"host": ""')) {
                             var node_host = (node_data.match(/\"add\": ?\"(.*?)\"/) || [])[1];
                             node_data = node_data.replace(/(\"host\": ?\")(.*?)(\"\,)/, "$1" + node_host + "$3");
                         }
                         var nodeStrings = ip_result.map(function (ip) {
-                            // 直接替换add字段，无论是IP还是域名
                             var newNodeData = node_data.replace(/(\"add\": ?\")(.*?)(\"\,)/, '$1' + ip + '$3');
-                            return vmess_pre + btoa(newNodeData) + '\n';
+                            return "vmess://" + btoa(newNodeData) + '\n';
                         });
                         nodes = nodes.concat(nodeStrings);
                     } catch (error) {
                         throw new Error("处理vmess链接时出现错误：" + error.message);
                     }
-                } else if (sample_node.startsWith(vless_pre) || sample_node.startsWith(trojan_pre)) {
+                } else if (sample_node.startsWith("vless://") || sample_node.startsWith("trojan://")) {
                     try {
-                        var re = /@(.*?):/;
-                        var node_host = sample_node.match(re)[1];
+                        let ipv6Match = sample_node.match(/@\[([^\]]+)\]:/);
+                        let ipv4Match = sample_node.match(/@([^:\[]+):/);
+                        let node_host = ipv6Match ? ipv6Match[1] : (ipv4Match ? ipv4Match[1] : "");
+                        
                         if (!sample_node.includes("host=")) {
                             sample_node = sample_node.replace(/(@.*?:\d+\?)/, "$1host=" + node_host + "&");
                         } else if(/[&#]$/.test(sample_node.match(/host=(.)/)[1])) {
-                            sample_node = sample_node.replace(/(host=)(.*?)(&)/, "$1" + node_host + "$3");
+                            sample_node = sample_node.replace(/(host=)(.*?)([&])/, '$1'+node_host+'$3');
                         }
+                        
                         var nodeStrings = ip_result.map(function (ip) {
-                            // 直接替换@和:之间，无论是IP还是域名
-                            return sample_node.replace(/(@)(.*?)(:)/, "$1" + ip + "$3") + "\n";
+                            let ipForReplace = ip;
+                            if (ipForReplace.includes(":") && !/^\[.*\]$/.test(ipForReplace)) {
+                                ipForReplace = "[" + ipForReplace + "]";
+                            }
+                            let replaced = sample_node.replace(/(@)(\[.*?\]|[^:]+)(:)/, "$1" + ipForReplace + "$3");
+                            replaced = replaced.replace(/(host=)([^&#]*)/, function(_, p1, p2) {
+                                let newHost = ipForReplace;
+                                if (newHost.includes(":") && !/^\[.*\]$/.test(newHost)) {
+                                    newHost = "[" + newHost.replace(/^\[|\]$/g, "") + "]";
+                                }
+                                return p1 + newHost;
+                            });
+                            return replaced + "\n";
                         });
                         nodes = nodes.concat(nodeStrings);
                     } catch (error) {
                         throw new Error("处理vless或trojan链接时出现错误：" + error.message);
                     }
+                } else if (sample_node.startsWith("ss://")) {
+                    try {
+                        const decoded = decodeURIComponent(sample_node.slice(5));
+                        const atIndex = decoded.indexOf('@');
+                        if (atIndex !== -1) {
+                            const colonIndex = decoded.indexOf(':', atIndex);
+                            if (colonIndex !== -1) {
+                                const originalHost = decoded.substring(atIndex + 1, colonIndex);
+                                const rest = decoded.substring(colonIndex);
+                                
+                                var nodeStrings = ip_result.map(function (ip) {
+                                    let ipForReplace = ip;
+                                    if (ipForReplace.includes(":") && !/^\[.*\]$/.test(ipForReplace)) {
+                                        ipForReplace = "[" + ipForReplace + "]";
+                                    }
+                                    const newDecoded = decoded.substring(0, atIndex + 1) + ipForReplace + rest;
+                                    return "ss://" + encodeURIComponent(newDecoded) + "\n";
+                                });
+                                nodes = nodes.concat(nodeStrings);
+                            }
+                        }
+                    } catch (error) {
+                        throw new Error("处理ss链接时出现错误：" + error.message);
+                    }
+                } else if (sample_node.startsWith("hysteria2://") || sample_node.startsWith("tuic://")) {
+                    try {
+                        let ipv6Match = sample_node.match(/@\[([^\]]+)\]:/);
+                        let ipv4Match = sample_node.match(/@([^:\[]+):/);
+                        let node_host = ipv6Match ? ipv6Match[1] : (ipv4Match ? ipv4Match[1] : "");
+                        
+                        var nodeStrings = ip_result.map(function (ip) {
+                            let ipForReplace = ip;
+                            if (ipForReplace.includes(":") && !/^\[.*\]$/.test(ipForReplace)) {
+                                ipForReplace = "[" + ipForReplace + "]";
+                            }
+                            let replaced = sample_node.replace(/(@)(\[.*?\]|[^:]+)(:)/, "$1" + ipForReplace + "$3");
+                            return replaced + "\n";
+                        });
+                        nodes = nodes.concat(nodeStrings);
+                    } catch (error) {
+                        throw new Error("处理hysteria2或tuic链接时出现错误：" + error.message);
+                    }
                 }
             }
-            // 输出格式与输入一致
-            if (isInputBase64) {
-                out.val(btoa(unescape(encodeURIComponent(nodes.join('')))));
-            } else {
-                out.val(nodes.join(''));
-            }
+            
+            out.val(nodes.join(''));
         } catch (error) {
             $("#err").html(error.message).show();
         } finally {
-            processBtn.html('<i class="fa fa-refresh"></i> 生成订阅').prop('disabled', false);
+            processBtn.html('<i class="fas fa-magic"></i> 生成订阅').prop('disabled', false);
         }
     }
 
@@ -497,43 +661,54 @@
 
     // 自动提取IP并填入IP列表
     function autoExtractIPs() {
-        const vmess_pre = "vmess://";
-        const vless_pre = "vless://";
-        const trojan_pre = "trojan://";
-        let sample_node_raw = $("#in").val().trim(); // 只去除首尾空白，不去除所有空白
-        let sample_nodes = [];
-        function isBase64(str) {
-            if (!str || str.length % 4 !== 0) return false;
-            return /^[A-Za-z0-9+/=]+$/.test(str);
-        }
-        if (isBase64(sample_node_raw)) {
-            try {
-                sample_node_raw = decodeURIComponent(escape(atob(sample_node_raw)));
-                sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
-            } catch (e) {
-                $("#cdniplist").val("");
-                return;
-            }
-        } else {
-            sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
-        }
+        let sample_node_raw = $("#in").val().trim();
+        let sample_nodes = sample_node_raw.split(/\r?\n/).filter(Boolean);
+        
         const extractedIPs = new Set();
         for (let node of sample_nodes) {
-            if (node.startsWith(vmess_pre)) {
+            if (node.startsWith("vmess://")) {
                 try {
-                    let node_data = atob(node.slice(vmess_pre.length));
-                    const addMatch = node_data.match(/"add":\s*"([^"]+)"/);
+                    let node_data = atob(node.slice(8));
+                    const addMatch = node_data.match(/"add":\s*"([^\"]+)"/);
                     if (addMatch) {
                         extractedIPs.add(addMatch[1]);
                     }
                 } catch (e) {}
-            } else if (node.startsWith(vless_pre) || node.startsWith(trojan_pre)) {
-                const hostMatch = node.match(/@([^:]+):/);
-                if (hostMatch) {
-                    extractedIPs.add(hostMatch[1]);
+            } else if (node.startsWith("vless://") || node.startsWith("trojan://")) {
+                const hostMatch6 = node.match(/@\[([^\]]+)\]:/);
+                if (hostMatch6) {
+                    extractedIPs.add("[" + hostMatch6[1] + "]");
+                } else {
+                    const hostMatch4 = node.match(/@([^:\[]+):/);
+                    if (hostMatch4) {
+                        extractedIPs.add(hostMatch4[1]);
+                    }
+                }
+            } else if (node.startsWith("ss://")) {
+                try {
+                    const decoded = decodeURIComponent(node.slice(5));
+                    const atIndex = decoded.indexOf('@');
+                    if (atIndex !== -1) {
+                        const colonIndex = decoded.indexOf(':', atIndex);
+                        if (colonIndex !== -1) {
+                            const host = decoded.substring(atIndex + 1, colonIndex);
+                            extractedIPs.add(host);
+                        }
+                    }
+                } catch (e) {}
+            } else if (node.startsWith("hysteria2://") || node.startsWith("tuic://")) {
+                const hostMatch6 = node.match(/@\[([^\]]+)\]:/);
+                if (hostMatch6) {
+                    extractedIPs.add("[" + hostMatch6[1] + "]");
+                } else {
+                    const hostMatch4 = node.match(/@([^:\[]+):/);
+                    if (hostMatch4) {
+                        extractedIPs.add(hostMatch4[1]);
+                    }
                 }
             }
         }
+        
         if (extractedIPs.size > 0) {
             $("#cdniplist").val(Array.from(extractedIPs).join('\n'));
         } else {
@@ -546,7 +721,7 @@
             if (this.checked) {
                 autoExtractIPs();
             } else {
-                $('#cdniplist').val(''); // 取消勾选时清空IP列表
+                $('#cdniplist').val('');
             }
         });
         $('#in').on('input', function() {
